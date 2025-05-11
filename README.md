@@ -31,7 +31,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hugging_face_chat_gradio: ^0.0.5
+  hugging_face_chat_gradio: ^0.0.6
 ```
 
 Run the following command to install the package:
