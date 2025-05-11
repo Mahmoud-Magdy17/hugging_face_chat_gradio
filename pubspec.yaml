@@ -1,6 +1,6 @@
 name: hugging_face_chat_gradio
 description: "A Flutter client for interacting with Hugging Face's Chat Gradio interface."
-version: 0.0.1
+version: 0.0.2
 auther: MahmoudMagdy176203@gmail.com
 homepage: https://github.com/Mahmoud-Magdy17/hugging_face_chat_gradio.git
 repository: https://github.com/Mahmoud-Magdy17/hugging_face_chat_gradio.git
