@@ -1,6 +1,6 @@
 # hugging_face_chat_gradio
 ## 📢 Publisher: Mahmoud Magdy (Verified soon)
-### This package was built and published by Mahmoud Magdy, a Flutter developer passionate about integrating AI into mobile apps.
+##### This package was built and published by Mahmoud Magdy, a Flutter developer passionate about integrating AI into mobile apps.
 
 A Flutter package for interacting with Hugging Face Chat Space APIs using Server-Sent Events (SSE). This package provides a clean and robust way to send messages to a Hugging Face Gradio API and process real-time responses, making it ideal for integrating AI-powered chat functionalities into Flutter applications.
 
@@ -31,7 +31,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hugging_face_chat_gradio: ^0.1.0
+  hugging_face_chat_gradio: ^0.0.4
 ```
 
 Run the following command to install the package:
@@ -40,25 +40,20 @@ Run the following command to install the package:
 flutter pub get
 ```
 
-Ensure you have the `dio` package as a dependency, as it is used for HTTP requests:
-
-```yaml
-dependencies:
-  dio: ^5.4.0
-```
+The package already includes `dio` as a dependency for HTTP requests, so you don't need to add it separately.
 
 ## Usage
 
 ### 1. Initialize the Client
 
-Create an instance of `HuggingFaceChatGradioClient` with the base URL of your Hugging Face Space and the predict endpoint (`/gradio_api/call/predict`):
+Create an instance of `HuggingFaceChatGradioClient` with the base URL of your Hugging Face Space and the predict endpoint:
 
 ```dart
 import 'package:hugging_face_chat_gradio/hf_chat_gradio_client.dart';
 
 final client = HuggingFaceChatGradioClient(
-  baseUrl: 'https://baher-hamada-final-project.hf.space',
-  predictEndpoint: '/gradio_api/call/predict',
+  baseUrl: '<your-hugging-face-space-url>',
+  predictEndpoint: '<predict-endpoint>',
 );
 ```
 
@@ -74,8 +69,8 @@ import 'dart:developer' as developer;
 
 void main() async {
   final client = HuggingFaceChatGradioClient(
-    baseUrl: 'https://baher-hamada-final-project.hf.space',
-    predictEndpoint: '/gradio_api/call/predict',
+    baseUrl: '<your-hugging-face-space-url>',
+    predictEndpoint: '<predict-endpoint>',
   );
 
   try {
@@ -87,132 +82,9 @@ void main() async {
 }
 ```
 
-### 3. Core Implementation Details
+### 3. Core Implementation Overview
 
-The package is structured into modular components:
-
-- **HuggingFaceChatGradioClient**: The main client class that orchestrates sending messages and receiving responses.
-- **HuggingFaceChatGradioApis**: Handles API calls for fetching the `event_id` and waiting for SSE responses.
-- **HuggingFaceChatGradioParser**: Parses SSE messages to extract response data.
-- **HuggingFaceChatGradioUtils**: Provides logging and error handling utilities.
-
-Below is a key snippet from `HuggingFaceChatGradioClient` showing how it sends a message:
-
-```dart
-Future<String> sendMessage(String message) async {
-  try {
-    final eventId = await HuggingFaceChatGradioApis.fetchEventId(
-      _dio,
-      baseUrl,
-      predictEndpoint,
-      message,
-    );
-    if (eventId == null) throw Exception('Failed to get event ID');
-
-    return await HuggingFaceChatGradioApis.waitForResponse(
-      _dio,
-      baseUrl,
-      predictEndpoint,
-      eventId,
-    );
-  } catch (e) {
-    HuggingFaceChatGradioUtils.handleException(e);
-    rethrow;
-  }
-}
-```
-
-The `fetchEventId` method sends a POST request to get the `event_id`:
-
-```dart
-static Future<String?> fetchEventId(
-  Dio dio,
-  String baseUrl,
-  String endpoint,
-  String message,
-) async {
-  try {
-    final response = await dio.post(
-      '$baseUrl$endpoint',
-      data: {
-        "data": [message],
-      },
-    );
-    final eventId = response.data["event_id"] as String?;
-    return eventId;
-  } catch (e) {
-    HuggingFaceChatGradioUtils.handleException(e);
-    return null;
-  }
-}
-```
-
-The `waitForResponse` method processes the SSE stream and extracts the response:
-
-```dart
-static Future<String> waitForResponse(
-  Dio dio,
-  String baseUrl,
-  String endpoint,
-  String eventId,
-) async {
-  final completer = Completer<String>();
-  try {
-    final response = await dio.get(
-      '$baseUrl$endpoint/$eventId',
-      options: Options(responseType: ResponseType.stream),
-    );
-    String buffer = '';
-    await for (var chunk in response.data.stream) {
-      final dataChunk = String.fromCharCodes(chunk);
-      buffer += dataChunk;
-      final messages = buffer.split('\n\n');
-      buffer = messages.last;
-      for (var message in messages.sublist(0, messages.length - 1)) {
-        final lines = message.split('\n');
-        String? eventType;
-        String? eventData;
-        for (var line in lines) {
-          if (line.startsWith('event: ')) {
-            eventType = line.substring(7).trim();
-          } else if (line.startsWith('data: ')) {
-            eventData = line.substring(6).trim();
-          }
-        }
-        if (eventType == 'complete' && eventData != null) {
-          final parsed = HuggingFaceChatGradioParser.parseSseMessage(eventData);
-          if (parsed != null) {
-            completer.complete(parsed);
-            return completer.future;
-          }
-        }
-      }
-    }
-    throw Exception('No valid response received');
-  } catch (e) {
-    HuggingFaceChatGradioUtils.handleException(e);
-    rethrow;
-  }
-}
-```
-
-The `HuggingFaceChatGradioParser` handles JSON parsing for SSE messages:
-
-```dart
-static String? parseSseMessage(String eventData) {
-  try {
-    final decoded = jsonDecode(eventData);
-    if (decoded is List && decoded.isNotEmpty) {
-      return decoded[0];
-    } else if (decoded is Map<String, dynamic>) {
-      return decoded['data']?[0];
-    }
-  } catch (e) {
-    HuggingFaceChatGradioUtils.logMessage('Error decoding data: $e');
-  }
-  return null;
-}
-```
+The package is designed with a modular architecture, separating concerns for API interactions, response parsing, and error handling. The main client class orchestrates message sending and response retrieval, while dedicated utilities manage HTTP requests (via `dio`), parse SSE responses, and log errors. This structure ensures clean, maintainable code and simplifies integration with Hugging Face Gradio APIs.
 
 ### 4. Error Handling
 
@@ -258,8 +130,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final client = HuggingFaceChatGradioClient(
-    baseUrl: 'https://baher-hamada-final-project.hf.space',
-    predictEndpoint: '/gradio_api/call/predict',
+    baseUrl: '<your-hugging-face-space-url>',
+    predictEndpoint: '<predict-endpoint>',
   );
   final TextEditingController _controller = TextEditingController();
   String _response = '';
@@ -283,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Hugging Face Chat')),
+      appAppBar: AppBar(title: Text('Hugging Face Chat')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -309,15 +181,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
 This app allows users to input a message, send it to the Hugging Face API, and display the response.
 
-## Requirements
-
-- **Flutter SDK**: >=3.0.0
-- **Dart SDK**: >=2.17.0
-- **Dependencies**: `dio` (^5.4.0)
-
 ## Limitations
 
-- **Dependency on Hugging Face Space**: The package is designed for Gradio-based APIs hosted on Hugging Face Spaces. Ensure the target Space is active and uses the `/gradio_api/call/predict` endpoint.
+- **Dependency on Hugging Face Space**: The package is designed for Gradio-based APIs hosted on Hugging Face Spaces. Ensure the target Space is active and uses the specified predict endpoint.
 - **SSE Response Format**: The package assumes responses follow the expected SSE format (e.g., `event: complete` with a JSON array or object). If the format changes, you may need to update the parser.
 - **Network Dependency**: Requires a stable internet connection for API communication.
 
