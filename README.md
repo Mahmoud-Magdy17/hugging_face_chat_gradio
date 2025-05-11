@@ -52,8 +52,8 @@ Create an instance of `HuggingFaceChatGradioClient` with the base URL of your Hu
 import 'package:hugging_face_chat_gradio/hf_chat_gradio_client.dart';
 
 final client = HuggingFaceChatGradioClient(
-  baseUrl: '<your-hugging-face-space-url>',
-  predictEndpoint: '<predict-endpoint>',
+  baseUrl: '<your-hugging-face-space-url>', /// https://chatBot.hf.space
+  predictEndpoint: '<predict-endpoint>', /// /gradio_api/call/predict
 );
 ```
 
@@ -69,8 +69,8 @@ import 'dart:developer' as developer;
 
 void main() async {
   final client = HuggingFaceChatGradioClient(
-    baseUrl: '<your-hugging-face-space-url>',
-    predictEndpoint: '<predict-endpoint>',
+    baseUrl: '<your-hugging-face-space-url>', /// https://chatBot.hf.space
+    predictEndpoint: '<predict-endpoint>', /// /gradio_api/call/predict
   );
 
   try {
