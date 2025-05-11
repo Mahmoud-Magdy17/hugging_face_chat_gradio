@@ -31,7 +31,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hugging_face_chat_gradio: ^0.0.4
+  hugging_face_chat_gradio: ^0.0.5
 ```
 
 Run the following command to install the package:
@@ -130,8 +130,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final client = HuggingFaceChatGradioClient(
-    baseUrl: '<your-hugging-face-space-url>',
-    predictEndpoint: '<predict-endpoint>',
+    baseUrl: '<your-hugging-face-space-url>', /// https://chatBot.hf.space
+    predictEndpoint: '<predict-endpoint>', /// /gradio_api/call/predict
   );
   final TextEditingController _controller = TextEditingController();
   String _response = '';
