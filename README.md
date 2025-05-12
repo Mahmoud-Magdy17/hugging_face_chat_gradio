@@ -31,7 +31,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hugging_face_chat_gradio: ^0.0.6
+  hugging_face_chat_gradio: ^0.0.7
 ```
 
 Run the following command to install the package:
@@ -135,10 +135,16 @@ class _ChatScreenState extends State<ChatScreen> {
   );
   final TextEditingController _controller = TextEditingController();
   String _response = '';
+  bool _isLoading = false;
 
   void _sendMessage() async {
     final message = _controller.text;
     if (message.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+      _response = '';
+    });
 
     try {
       final response = await client.sendMessage(message);
@@ -149,13 +155,17 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _response = 'Error: $e';
       });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appAppBar: AppBar(title: Text('Hugging Face Chat')),
+      appBar: AppBar(title: Text('Hugging Face Chat')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -166,11 +176,23 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: _sendMessage,
-              child: Text('Send'),
+              onPressed: _isLoading ? null : _sendMessage,
+              child: _isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.0,
+                      ),
+                    )
+                  : Text('Send'),
             ),
             SizedBox(height: 16.0),
-            Text('Response: $_response'),
+            if (_isLoading)
+              CircularProgressIndicator(),
+            if (!_isLoading && _response.isNotEmpty)
+              Text('Response: $_response'),
           ],
         ),
       ),

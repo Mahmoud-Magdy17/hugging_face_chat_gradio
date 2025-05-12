@@ -77,7 +77,7 @@ class HuggingFaceChatGradioApis {
                 completer.complete(parsed);
 
                 HuggingFaceChatGradioUtils.logMessage(
-                  'Model Ander Resuived Successfully',
+                  'Model Answer Received Successfully',
                 );
                 return completer.future;
               }
