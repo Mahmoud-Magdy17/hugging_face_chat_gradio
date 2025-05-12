@@ -1,6 +1,6 @@
 # hugging_face_chat_gradio
 ## 📢 Publisher: Mahmoud Magdy (Verified soon)
-##### This package was built and published by Mahmoud Magdy, a Flutter developer passionate about integrating AI into mobile apps.
+##### This package was built and published by Mahmoud Magdy, A Flutter developer passionate about integrating AI into mobile apps.
 
 A Flutter package for interacting with Hugging Face Chat Space APIs using Server-Sent Events (SSE). This package provides a clean and robust way to send messages to a Hugging Face Gradio API and process real-time responses, making it ideal for integrating AI-powered chat functionalities into Flutter applications.
 
